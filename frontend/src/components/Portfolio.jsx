@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import emailjs from '@emailjs/browser';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
 import { 
   Code2, 
   Server, 
@@ -15,9 +12,6 @@ import {
   MessageCircle,
   ExternalLink,
   ChevronRight,
-  Github,
-  Linkedin,
-  Twitter,
   ArrowDown,
   Star,
   Users,
@@ -90,14 +84,240 @@ const techColors = {
   'LangChain': 'from-indigo-500/20 to-indigo-500/5 border-indigo-500/30 text-indigo-400',
 };
 
+// ===== TECH SHOWCASE COMPONENT =====
+const techIntros = [
+  {
+    name: 'React',
+    emoji: '⚛️',
+    color: '#61dafb',
+    glow: 'rgba(97,218,251,0.3)',
+    intro: "Hey! I'm React — the UI library that makes your interfaces come alive. I power Sujal's frontends with lightning-fast rendering and component magic.",
+    role: 'Frontend Framework'
+  },
+  {
+    name: 'Node.js',
+    emoji: '🟢',
+    color: '#68a063',
+    glow: 'rgba(104,160,99,0.3)',
+    intro: "What's up! Node.js here — JavaScript on the server side. I handle APIs, real-time events, and make backends blazing fast for Sujal's projects.",
+    role: 'Backend Runtime'
+  },
+  {
+    name: 'MongoDB',
+    emoji: '🍃',
+    color: '#4db33d',
+    glow: 'rgba(77,179,61,0.3)',
+    intro: "Hello! I'm MongoDB — the flexible NoSQL database. I store data in JSON-like documents, making it easy to scale and adapt as your app grows.",
+    role: 'NoSQL Database'
+  },
+  {
+    name: 'PostgreSQL',
+    emoji: '🐘',
+    color: '#336791',
+    glow: 'rgba(51,103,145,0.3)',
+    intro: "Greetings! PostgreSQL speaking — the world's most advanced open-source relational database. I keep your data structured, safe, and lightning-fast.",
+    role: 'SQL Database'
+  },
+  {
+    name: 'Java',
+    emoji: '☕',
+    color: '#f89820',
+    glow: 'rgba(248,152,32,0.3)',
+    intro: "Hi there! Java here — write once, run anywhere! I power enterprise-grade backend systems with rock-solid stability and performance.",
+    role: 'Enterprise Language'
+  },
+  {
+    name: 'Spring Boot',
+    emoji: '🌱',
+    color: '#6db33f',
+    glow: 'rgba(109,179,63,0.3)',
+    intro: "Hey! Spring Boot at your service — I make Java development fast and fun. Microservices, REST APIs, security — I handle it all with elegance.",
+    role: 'Java Framework'
+  },
+  {
+    name: 'OpenAI',
+    emoji: '🤖',
+    color: '#10a37f',
+    glow: 'rgba(16,163,127,0.3)',
+    intro: "Hello, human! OpenAI GPT here — the brain behind Sujal's AI solutions. I understand context, generate content, and power intelligent automation.",
+    role: 'AI / LLM'
+  },
+  {
+    name: 'LangChain',
+    emoji: '🔗',
+    color: '#6366f1',
+    glow: 'rgba(99,102,241,0.3)',
+    intro: "What's up! LangChain here — I connect LLMs to your data and tools. RAG pipelines, AI agents, custom workflows — I make AI actually useful.",
+    role: 'AI Framework'
+  },
+];
+
+const TechShowcase = () => {
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [displayedText, setDisplayedText] = useState('');
+  const [phase, setPhase] = useState('typing'); // 'typing' | 'waiting' | 'erasing'
+  const [charIdx, setCharIdx] = useState(0);
+
+  const current = techIntros[currentIdx];
+
+  useEffect(() => {
+    let timeout;
+    if (phase === 'typing') {
+      if (charIdx < current.intro.length) {
+        timeout = setTimeout(() => {
+          setDisplayedText(current.intro.slice(0, charIdx + 1));
+          setCharIdx(c => c + 1);
+        }, 28);
+      } else {
+        // Done typing — wait 2.5s then erase
+        timeout = setTimeout(() => setPhase('erasing'), 2500);
+      }
+    } else if (phase === 'erasing') {
+      if (charIdx > 0) {
+        timeout = setTimeout(() => {
+          setDisplayedText(current.intro.slice(0, charIdx - 1));
+          setCharIdx(c => c - 1);
+        }, 12);
+      } else {
+        // Done erasing — move to next tech
+        const nextIdx = (currentIdx + 1) % techIntros.length;
+        setCurrentIdx(nextIdx);
+        setPhase('typing');
+      }
+    }
+    return () => clearTimeout(timeout);
+  }, [phase, charIdx, current.intro, currentIdx]);
+
+  return (
+    <div
+      className="rounded-2xl overflow-hidden relative"
+      style={{
+        background: 'rgba(255,255,255,0.02)',
+        border: '1px solid rgba(255,255,255,0.06)',
+        minHeight: '420px',
+      }}
+    >
+      {/* Glow background */}
+      <div
+        className="absolute inset-0 transition-all duration-1000 pointer-events-none"
+        style={{
+          background: `radial-gradient(ellipse at 50% 30%, ${current.glow} 0%, transparent 65%)`,
+        }}
+      />
+
+      {/* Header bar */}
+      <div
+        className="flex items-center gap-2 px-5 py-3 border-b"
+        style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.2)' }}
+      >
+        <span className="w-3 h-3 rounded-full bg-red-500/70" />
+        <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
+        <span className="w-3 h-3 rounded-full bg-green-500/70" />
+        <span className="text-gray-500 text-xs ml-2 font-mono">tech_intro.exe</span>
+      </div>
+
+      {/* Tech cards row */}
+      <div className="flex gap-2 px-5 pt-5 pb-3 flex-wrap">
+        {techIntros.map((tech, i) => (
+          <button
+            key={tech.name}
+            onClick={() => {
+              setCurrentIdx(i);
+              setCharIdx(0);
+              setDisplayedText('');
+              setPhase('typing');
+            }}
+            className="px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300"
+            style={{
+              background: i === currentIdx ? `${tech.color}22` : 'rgba(255,255,255,0.04)',
+              border: `1px solid ${i === currentIdx ? tech.color + '55' : 'rgba(255,255,255,0.08)'}`,
+              color: i === currentIdx ? tech.color : '#6b7280',
+              transform: i === currentIdx ? 'scale(1.08)' : 'scale(1)',
+            }}
+          >
+            {tech.emoji} {tech.name}
+          </button>
+        ))}
+      </div>
+
+      {/* Main display */}
+      <div className="px-6 pb-6 pt-2 relative">
+        {/* Tech identity */}
+        <div className="flex items-center gap-4 mb-5">
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl transition-all duration-500"
+            style={{
+              background: `${current.color}18`,
+              border: `2px solid ${current.color}40`,
+              boxShadow: `0 0 24px ${current.glow}`,
+            }}
+          >
+            {current.emoji}
+          </div>
+          <div>
+            <h3
+              className="text-2xl font-black transition-all duration-500"
+              style={{ color: current.color, fontFamily: 'Space Grotesk, sans-serif' }}
+            >
+              {current.name}
+            </h3>
+            <span
+              className="text-xs font-semibold px-2 py-0.5 rounded-full"
+              style={{ background: `${current.color}18`, color: current.color }}
+            >
+              {current.role}
+            </span>
+          </div>
+        </div>
+
+        {/* Typing text area */}
+        <div
+          className="rounded-xl p-5 font-mono text-sm leading-relaxed min-h-[120px]"
+          style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <span className="text-gray-300">{displayedText}</span>
+          <span
+            className="inline-block w-0.5 h-4 ml-0.5 align-middle animate-pulse"
+            style={{ background: current.color }}
+          />
+        </div>
+
+        {/* Progress dots */}
+        <div className="flex items-center justify-center gap-2 mt-5">
+          {techIntros.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => {
+                setCurrentIdx(i);
+                setCharIdx(0);
+                setDisplayedText('');
+                setPhase('typing');
+              }}
+              className="rounded-full transition-all duration-300"
+              style={{
+                width: i === currentIdx ? '24px' : '8px',
+                height: '8px',
+                background: i === currentIdx ? current.color : 'rgba(255,255,255,0.15)',
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Bottom label */}
+        <p className="text-center text-gray-600 text-xs mt-3">
+          Click any tech to hear its introduction
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const Portfolio = () => {
   const [typedText, setTypedText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeNav, setActiveNav] = useState('');
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
-  const [formStatus, setFormStatus] = useState('');
   const [scrolled, setScrolled] = useState(false);
   const fullText = personalInfo.heroHeadline;
 
@@ -156,35 +376,6 @@ const Portfolio = () => {
     setTimeout(() => setSelectedProject(null), 300);
   };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    setFormStatus('sending');
-
-    const templateParams = {
-      from_name: formData.name,
-      from_email: formData.email,
-      subject: formData.subject,
-      message: formData.message,
-    };
-
-    emailjs
-      .send(
-        'service_portfolio',   // EmailJS Service ID
-        'template_portfolio',  // EmailJS Template ID
-        templateParams,
-        'YOUR_EMAILJS_PUBLIC_KEY' // EmailJS Public Key
-      )
-      .then(() => {
-        setFormStatus('sent');
-        setFormData({ name: '', email: '', subject: '', message: '' });
-        setTimeout(() => setFormStatus(''), 4000);
-      })
-      .catch((error) => {
-        console.error('EmailJS error:', error);
-        setFormStatus('error');
-        setTimeout(() => setFormStatus(''), 4000);
-      });
-  };
 
   return (
     <div className="min-h-screen text-white" style={{ background: 'linear-gradient(135deg, #080c1a 0%, #0d1226 50%, #080c1a 100%)' }}>
@@ -727,90 +918,9 @@ const Portfolio = () => {
               </div>
             </div>
 
-            {/* Contact form */}
+            {/* Animated Tech Showcase */}
             <div className="lg:col-span-3">
-              <div className="p-8 rounded-2xl"
-                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h3 className="text-xl font-bold text-white mb-6" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                  Send a Message
-                </h3>
-                <form onSubmit={handleFormSubmit} className="space-y-4">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs text-gray-400 mb-1.5 block font-medium">Your Name</label>
-                      <Input
-                        placeholder="John Doe"
-                        value={formData.name}
-                        onChange={e => setFormData({...formData, name: e.target.value})}
-                        className="text-white placeholder:text-gray-600 focus:ring-1"
-                        style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.1)' }}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-400 mb-1.5 block font-medium">Email Address</label>
-                      <Input
-                        type="email"
-                        placeholder="john@example.com"
-                        value={formData.email}
-                        onChange={e => setFormData({...formData, email: e.target.value})}
-                        className="text-white placeholder:text-gray-600"
-                        style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.1)' }}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block font-medium">Subject</label>
-                    <Input
-                      placeholder="Project Discussion"
-                      value={formData.subject}
-                      onChange={e => setFormData({...formData, subject: e.target.value})}
-                      className="text-white placeholder:text-gray-600"
-                      style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.1)' }}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block font-medium">Message</label>
-                    <Textarea
-                      placeholder="Tell me about your project..."
-                      rows={5}
-                      value={formData.message}
-                      onChange={e => setFormData({...formData, message: e.target.value})}
-                      className="text-white placeholder:text-gray-600 resize-none"
-                      style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.1)' }}
-                      required
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full text-white font-semibold py-3 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
-                    style={{ 
-                      background: formStatus === 'sent' 
-                        ? 'linear-gradient(135deg, #22c55e, #16a34a)' 
-                        : formStatus === 'error'
-              ? 'linear-gradient(135deg, #ef4444, #dc2626)'
-              : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-                      boxShadow: '0 4px 20px rgba(14,165,233,0.3)'
-                    }}
-                    disabled={formStatus === 'sending'}
-                  >
-                    {formStatus === 'sending' ? (
-                      <span className="flex items-center gap-2">
-                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Sending...
-                      </span>
-                    ) : formStatus === 'sent' ? (
-                       'Message Sent!'
-                     ) : formStatus === 'error' ? (
-                       'Failed. Try again.'
-                     ) : (
-                       'Send Message'
-                     )}
-                  </Button>
-                </form>
-              </div>
+              <TechShowcase />
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@ import Portfolio from './components/Portfolio';
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/" element={<Portfolio />} />
         </Routes>
