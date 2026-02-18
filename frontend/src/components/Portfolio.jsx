@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import emailjs from '@emailjs/browser';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
@@ -158,11 +159,31 @@ const Portfolio = () => {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     setFormStatus('sending');
-    setTimeout(() => {
-      setFormStatus('sent');
-      setFormData({ name: '', email: '', subject: '', message: '' });
-      setTimeout(() => setFormStatus(''), 3000);
-    }, 1500);
+
+    const templateParams = {
+      from_name: formData.name,
+      from_email: formData.email,
+      subject: formData.subject,
+      message: formData.message,
+    };
+
+    emailjs
+      .send(
+        'service_portfolio',   // EmailJS Service ID
+        'template_portfolio',  // EmailJS Template ID
+        templateParams,
+        'YOUR_EMAILJS_PUBLIC_KEY' // EmailJS Public Key
+      )
+      .then(() => {
+        setFormStatus('sent');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+        setTimeout(() => setFormStatus(''), 4000);
+      })
+      .catch((error) => {
+        console.error('EmailJS error:', error);
+        setFormStatus('error');
+        setTimeout(() => setFormStatus(''), 4000);
+      });
   };
 
   return (
@@ -281,25 +302,7 @@ const Portfolio = () => {
                 </Button>
               </div>
 
-              {/* Social links */}
-              <div className="flex items-center gap-4 pt-2">
-                <span className="text-gray-500 text-sm">Follow me:</span>
-                {[
-                  { icon: Github, href: '#', label: 'GitHub' },
-                  { icon: Linkedin, href: '#', label: 'LinkedIn' },
-                  { icon: Twitter, href: '#', label: 'Twitter' },
-                ].map(({ icon: Icon, href, label }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-400 hover:text-cyan-400 transition-all duration-200 hover:scale-110"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
-                    aria-label={label}
-                  >
-                    <Icon className="h-4 w-4" />
-                  </a>
-                ))}
-              </div>
+
             </div>
 
             {/* Right: Profile image */}
@@ -786,7 +789,9 @@ const Portfolio = () => {
                     style={{ 
                       background: formStatus === 'sent' 
                         ? 'linear-gradient(135deg, #22c55e, #16a34a)' 
-                        : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+                        : formStatus === 'error'
+              ? 'linear-gradient(135deg, #ef4444, #dc2626)'
+              : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
                       boxShadow: '0 4px 20px rgba(14,165,233,0.3)'
                     }}
                     disabled={formStatus === 'sending'}
@@ -797,10 +802,12 @@ const Portfolio = () => {
                         Sending...
                       </span>
                     ) : formStatus === 'sent' ? (
-                      '✓ Message Sent!'
-                    ) : (
-                      'Send Message'
-                    )}
+                       'Message Sent!'
+                     ) : formStatus === 'error' ? (
+                       'Failed. Try again.'
+                     ) : (
+                       'Send Message'
+                     )}
                   </Button>
                 </form>
               </div>
